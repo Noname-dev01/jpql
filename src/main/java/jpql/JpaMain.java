@@ -16,6 +16,20 @@ public class JpaMain {
             member.setUsername("member1");
             member.setAge(10);
             em.persist(member);
+
+            /** 프로젝션(SELECT)
+             * SELECT 절에 조회할 대상을 지정하는 것
+             */
+//            List<Member> result = em.createQuery("select m from Member m", Member.class)
+//                    .getResultList();
+            em.flush();
+            em.clear();
+            List<MemberDTO> result = em.createQuery("select new jpql.MemberDTO(m.username,m.age) from Member m", MemberDTO.class)
+                    .getResultList();
+            MemberDTO memberDTO = result.get(0);
+            System.out.println("memberDTO.getUsername() = " + memberDTO.getUsername());
+            System.out.println("memberDTO.getAge() = " + memberDTO.getAge());
+
             /** 기본 문법과 쿼리 API */
             /**
              * TypeQuery: 반환 타입이 명확할 때 사용
@@ -37,10 +51,10 @@ public class JpaMain {
              * 파라미터 바인딩 - 이름 기준, 위치 기준
              * 위치 기준은 웬만하면 사용 x
              */
-            Member result = em.createQuery("select m from Member m where m.username = :username", Member.class)
-                    .setParameter("username", "member1")
-                    .getSingleResult();
-            System.out.println("result = " + result.getUsername());
+//            Member result = em.createQuery("select m from Member m where m.username = :username", Member.class)
+//                    .setParameter("username", "member1")
+//                    .getSingleResult();
+//            System.out.println("result = " + result.getUsername());
 
             tx.commit();
         }catch (Exception e){

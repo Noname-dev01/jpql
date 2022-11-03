@@ -12,23 +12,45 @@ public class JpaMain {
         tx.begin();
 
         try {
-            Member member = new Member();
-            member.setUsername("member1");
-            member.setAge(10);
-            em.persist(member);
+//            Member member = new Member();
+//            member.setUsername("member1");
+//            member.setAge(10);
+//            em.persist(member);
+
+//            em.flush();
+//            em.clear();
+
+            /** 페이징 */
+            for (int i = 0; i < 100; i++) {
+                Member member = new Member();
+                member.setUsername("member"+i);
+                member.setAge(i);
+                em.persist(member);
+            }
+            em.flush();
+            em.clear();
+
+            List<Member> result = em.createQuery("select m from Member m order by m.age desc", Member.class)
+                    .setFirstResult(1)
+                    .setMaxResults(10)
+                    .getResultList();
+            System.out.println("result.size = " + result.size());
+            for (Member member1 : result) {
+                System.out.println("member1 = " + member1);
+            }
 
             /** 프로젝션(SELECT)
              * SELECT 절에 조회할 대상을 지정하는 것
              */
 //            List<Member> result = em.createQuery("select m from Member m", Member.class)
 //                    .getResultList();
-            em.flush();
-            em.clear();
-            List<MemberDTO> result = em.createQuery("select new jpql.MemberDTO(m.username,m.age) from Member m", MemberDTO.class)
-                    .getResultList();
-            MemberDTO memberDTO = result.get(0);
-            System.out.println("memberDTO.getUsername() = " + memberDTO.getUsername());
-            System.out.println("memberDTO.getAge() = " + memberDTO.getAge());
+//            em.flush();
+//            em.clear();
+//            List<MemberDTO> result = em.createQuery("select new jpql.MemberDTO(m.username,m.age) from Member m", MemberDTO.class)
+//                    .getResultList();
+//            MemberDTO memberDTO = result.get(0);
+//            System.out.println("memberDTO.getUsername() = " + memberDTO.getUsername());
+//            System.out.println("memberDTO.getAge() = " + memberDTO.getAge());
 
             /** 기본 문법과 쿼리 API */
             /**

@@ -27,6 +27,19 @@ public class JpaMain {
 //
 //            em.flush();
 //            em.clear();
+            /** 다형성 쿼리
+             * TYPE
+             * 조회 대상을 특정 자식으로 한정
+             * 예) Item 중에 Book, Movie를 조회해라
+             * JPQL: select i from Item i where type(i) IN (Book,Movie)
+             * SQL: select i from i where i.DTYPE in ('B','M')
+             *
+             * TREAT
+             * 예)부모인 Item과 자식 Book이 있다.
+             * JPQL: select i from Item i where treat(i as Book).author = 'kim'
+             * SQL: select i.* from Item i where i.DTYPE='B' and i.author = 'kim'
+             * */
+
             /** 페치 조인 2- 한계
              * 페치 조인 대상에는 별칭을 줄 수 없다.
              * - 하이버네이트는 가능, 가급적 사용 X

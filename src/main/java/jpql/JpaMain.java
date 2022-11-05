@@ -27,7 +27,17 @@ public class JpaMain {
 //
 //            em.flush();
 //            em.clear();
-            /** 페치 조인 1 - 기본 */
+            /** 페치 조인 2- 한계
+             * 페치 조인 대상에는 별칭을 줄 수 없다.
+             * - 하이버네이트는 가능, 가급적 사용 X
+             * 둘 이상의 컬렉션은 페치 조인 할 수 없다.
+             * 컬렉션을 페치 조인하면 페이징 API(setFirstResult,setMaxResults)를 사용할 수 없다.
+             * -일대일, 다대일 같은 단일 값 연관 필드들은 페치 조인해도 페이징 가능
+             * -하이버네이트는 경고 로그를 남기고 메모리에서 페이징(매우 위험)
+             * @BatchSize 컬렉션 페치 조인하면 n+1 문제가 해결안되니 BatchSize를 사용해줬다.
+             * 어노테이션으로 사용해도 되지만 실무에서는 보통 글로벌 세팅으로 해줄수 있다.(persistence.xml에)
+             * <property name="hibernate.default_batch_fetch_size" value="100"/>
+             * */
             Team teamA = new Team();
             teamA.setName("팀A");
             em.persist(teamA);
@@ -54,14 +64,53 @@ public class JpaMain {
             em.flush();
             em.clear();
 
-            String query = "select m from Member m join fetch m.team";
-            List<Member> result = em.createQuery(query, Member.class)
+            String query = "select t from Team t";
+            List<Team> result = em.createQuery(query, Team.class)
+                    .setFirstResult(0)
+                    .setMaxResults(2)
                     .getResultList();
-            for (Member member : result) {
-                System.out.println("username = " + member.getUsername()+","+
-                        "teamname = " + member.getTeam().getName());
-
+            for (Team team : result) {
+                System.out.println("team = " + team.getName() + "|members = " + team.getMembers().size());
+                for (Member member : team.getMembers()){
+                    System.out.println("--> member = " + member);
+                }
             }
+
+            /** 페치 조인 1 - 기본 */
+//            Team teamA = new Team();
+//            teamA.setName("팀A");
+//            em.persist(teamA);
+//
+//            Team teamB = new Team();
+//            teamB.setName("팀B");
+//            em.persist(teamB);
+//
+//            Member member1 = new Member();
+//            member1.setUsername("회원1");
+//            member1.setTeam(teamA);
+//            em.persist(member1);
+//
+//            Member member2 = new Member();
+//            member2.setUsername("회원2");
+//            member2.setTeam(teamA);
+//            em.persist(member2);
+//
+//            Member member3 = new Member();
+//            member3.setUsername("회원3");
+//            member3.setTeam(teamB);
+//            em.persist(member3);
+//
+//            em.flush();
+//            em.clear();
+//
+//            String query = "select m from Member m join fetch m.team";
+//            List<Member> result = em.createQuery(query, Member.class)
+//                    .getResultList();
+//            for (Member member : result) {
+//                System.out.println("username = " + member.getUsername()+","+
+//                        "teamname = " + member.getTeam().getName());
+//
+//            }
             /** 경로 표현식
              * 상태 필드(static field): 경로 탐색의 끝, 탐색x (ex:m.username)
              * 단일 값 연관 경로: 묵시적 내부 조인(inner join) 발생, 탐색 O (ex: m.team)

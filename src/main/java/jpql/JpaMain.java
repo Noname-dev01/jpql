@@ -12,45 +12,6 @@ public class JpaMain {
         tx.begin();
 
         try {
-//            Team team = new Team();
-//            team.setName("teamA");
-//            em.persist(team);
-//
-//            Member member = new Member();
-//            member.setUsername("관리자");
-//            member.setAge(10);
-//            member.setType(MemberType.ADMIN);
-//
-//            member.setTeam(team);
-//
-//            em.persist(member);
-//
-//            em.flush();
-//            em.clear();
-            /** 다형성 쿼리
-             * TYPE
-             * 조회 대상을 특정 자식으로 한정
-             * 예) Item 중에 Book, Movie를 조회해라
-             * JPQL: select i from Item i where type(i) IN (Book,Movie)
-             * SQL: select i from i where i.DTYPE in ('B','M')
-             *
-             * TREAT
-             * 예)부모인 Item과 자식 Book이 있다.
-             * JPQL: select i from Item i where treat(i as Book).author = 'kim'
-             * SQL: select i.* from Item i where i.DTYPE='B' and i.author = 'kim'
-             * */
-
-            /** 페치 조인 2- 한계
-             * 페치 조인 대상에는 별칭을 줄 수 없다.
-             * - 하이버네이트는 가능, 가급적 사용 X
-             * 둘 이상의 컬렉션은 페치 조인 할 수 없다.
-             * 컬렉션을 페치 조인하면 페이징 API(setFirstResult,setMaxResults)를 사용할 수 없다.
-             * -일대일, 다대일 같은 단일 값 연관 필드들은 페치 조인해도 페이징 가능
-             * -하이버네이트는 경고 로그를 남기고 메모리에서 페이징(매우 위험)
-             * @BatchSize 컬렉션 페치 조인하면 n+1 문제가 해결안되니 BatchSize를 사용해줬다.
-             * 어노테이션으로 사용해도 되지만 실무에서는 보통 글로벌 세팅으로 해줄수 있다.(persistence.xml에)
-             * <property name="hibernate.default_batch_fetch_size" value="100"/>
-             * */
             Team teamA = new Team();
             teamA.setName("팀A");
             em.persist(teamA);
@@ -77,17 +38,81 @@ public class JpaMain {
             em.flush();
             em.clear();
 
-            String query = "select t from Team t";
-            List<Team> result = em.createQuery(query, Team.class)
-                    .setFirstResult(0)
-                    .setMaxResults(2)
-                    .getResultList();
-            for (Team team : result) {
-                System.out.println("team = " + team.getName() + "|members = " + team.getMembers().size());
-                for (Member member : team.getMembers()){
-                    System.out.println("--> member = " + member);
-                }
-            }
+            /** JPQL - 엔티티 직접 사용
+             * 기본 키 값
+             * JPQL에서 엔티티를 직접 사용하면 SQL에서 해당 엔티티의 기본 키 값을 사용
+             * JPQL: select count(m.id) from Member m //엔티티의 아이디를 사용
+             * select count(m) from Member m //엔티티를 직접 사용
+             * SQL(위 JPQL은 둘다 같은 다음 SQL 실행):select count(m.id) as cnt from Member m
+             * */
+            String query = "select m from Member m where m = :member";
+            Member findMember = em.createQuery(query, Member.class)
+                    .setParameter("member", member1)
+                    .getSingleResult();
+            System.out.println("findMember = " + findMember);
+
+
+            /** 다형성 쿼리
+             * TYPE
+             * 조회 대상을 특정 자식으로 한정
+             * 예) Item 중에 Book, Movie를 조회해라
+             * JPQL: select i from Item i where type(i) IN (Book,Movie)
+             * SQL: select i from i where i.DTYPE in ('B','M')
+             *
+             * TREAT
+             * 예)부모인 Item과 자식 Book이 있다.
+             * JPQL: select i from Item i where treat(i as Book).author = 'kim'
+             * SQL: select i.* from Item i where i.DTYPE='B' and i.author = 'kim'
+             * */
+
+            /** 페치 조인 2- 한계
+             * 페치 조인 대상에는 별칭을 줄 수 없다.
+             * - 하이버네이트는 가능, 가급적 사용 X
+             * 둘 이상의 컬렉션은 페치 조인 할 수 없다.
+             * 컬렉션을 페치 조인하면 페이징 API(setFirstResult,setMaxResults)를 사용할 수 없다.
+             * -일대일, 다대일 같은 단일 값 연관 필드들은 페치 조인해도 페이징 가능
+             * -하이버네이트는 경고 로그를 남기고 메모리에서 페이징(매우 위험)
+             * @BatchSize 컬렉션 페치 조인하면 n+1 문제가 해결안되니 BatchSize를 사용해줬다.
+             * 어노테이션으로 사용해도 되지만 실무에서는 보통 글로벌 세팅으로 해줄수 있다.(persistence.xml에)
+             * <property name="hibernate.default_batch_fetch_size" value="100"/>
+             * */
+//            Team teamA = new Team();
+//            teamA.setName("팀A");
+//            em.persist(teamA);
+//
+//            Team teamB = new Team();
+//            teamB.setName("팀B");
+//            em.persist(teamB);
+//
+//            Member member1 = new Member();
+//            member1.setUsername("회원1");
+//            member1.setTeam(teamA);
+//            em.persist(member1);
+//
+//            Member member2 = new Member();
+//            member2.setUsername("회원2");
+//            member2.setTeam(teamA);
+//            em.persist(member2);
+//
+//            Member member3 = new Member();
+//            member3.setUsername("회원3");
+//            member3.setTeam(teamB);
+//            em.persist(member3);
+//
+//            em.flush();
+//            em.clear();
+//
+//            String query = "select t from Team t";
+//            List<Team> result = em.createQuery(query, Team.class)
+//                    .setFirstResult(0)
+//                    .setMaxResults(2)
+//                    .getResultList();
+//            for (Team team : result) {
+//                System.out.println("team = " + team.getName() + "|members = " + team.getMembers().size());
+//                for (Member member : team.getMembers()){
+//                    System.out.println("--> member = " + member);
+//                }
+//            }
 
             /** 페치 조인 1 - 기본 */
 //            Team teamA = new Team();

@@ -37,6 +37,20 @@ public class JpaMain {
 
             em.flush();
             em.clear();
+            /** Named 쿼리 - 정적 쿼리
+             * 미리 정의해서 이름을 부여해두고 사용하는 JPQL
+             * 정적 쿼리
+             * 어노테이션, XML에 정의
+             * 애플리케이션 로딩 시점에 초기화 후 재사용
+             * 애플리케이션 로딩 시점에 쿼리를 검증 (이게 정말 중요하다)
+             * Spring Data Jpa를 쓰면 repository에 @Query로 사용하면 알아서 Named쿼리를 파싱해준다.
+             * */
+            List<Member> resultList = em.createNamedQuery("Member.findByUsername", Member.class)
+                    .setParameter("username", "회원1")
+                    .getResultList();
+            for (Member member : resultList) {
+                System.out.println("member = " + member);
+            }
 
             /** JPQL - 엔티티 직접 사용
              * 기본 키 값

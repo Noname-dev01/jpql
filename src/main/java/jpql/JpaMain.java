@@ -34,9 +34,19 @@ public class JpaMain {
             member3.setUsername("회원3");
             member3.setTeam(teamB);
             em.persist(member3);
-
-            em.flush();
+            
+            /** 벌크 연산
+             * 주의점
+             * -벌크 연산은 영속성 컨텍스트를 무시하고 데이터베이스에 직접 쿼리
+             * */
+            //자동 Flush
+            em.createQuery("update Member m set m.age = 20")
+                    .executeUpdate();
+            
             em.clear();
+            Member findMember = em.find(Member.class, member1.getId());
+            System.out.println("findMember.getAge() = " + findMember.getAge());
+
             /** Named 쿼리 - 정적 쿼리
              * 미리 정의해서 이름을 부여해두고 사용하는 JPQL
              * 정적 쿼리
@@ -45,12 +55,12 @@ public class JpaMain {
              * 애플리케이션 로딩 시점에 쿼리를 검증 (이게 정말 중요하다)
              * Spring Data Jpa를 쓰면 repository에 @Query로 사용하면 알아서 Named쿼리를 파싱해준다.
              * */
-            List<Member> resultList = em.createNamedQuery("Member.findByUsername", Member.class)
-                    .setParameter("username", "회원1")
-                    .getResultList();
-            for (Member member : resultList) {
-                System.out.println("member = " + member);
-            }
+//            List<Member> resultList = em.createNamedQuery("Member.findByUsername", Member.class)
+//                    .setParameter("username", "회원1")
+//                    .getResultList();
+//            for (Member member : resultList) {
+//                System.out.println("member = " + member);
+//            }
 
             /** JPQL - 엔티티 직접 사용
              * 기본 키 값
@@ -59,11 +69,11 @@ public class JpaMain {
              * select count(m) from Member m //엔티티를 직접 사용
              * SQL(위 JPQL은 둘다 같은 다음 SQL 실행):select count(m.id) as cnt from Member m
              * */
-            String query = "select m from Member m where m = :member";
-            Member findMember = em.createQuery(query, Member.class)
-                    .setParameter("member", member1)
-                    .getSingleResult();
-            System.out.println("findMember = " + findMember);
+//            String query = "select m from Member m where m = :member";
+//            Member findMember = em.createQuery(query, Member.class)
+//                    .setParameter("member", member1)
+//                    .getSingleResult();
+//            System.out.println("findMember = " + findMember);
 
 
             /** 다형성 쿼리

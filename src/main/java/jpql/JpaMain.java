@@ -27,6 +27,41 @@ public class JpaMain {
 //
 //            em.flush();
 //            em.clear();
+            /** 페치 조인 1 - 기본 */
+            Team teamA = new Team();
+            teamA.setName("팀A");
+            em.persist(teamA);
+
+            Team teamB = new Team();
+            teamB.setName("팀B");
+            em.persist(teamB);
+
+            Member member1 = new Member();
+            member1.setUsername("회원1");
+            member1.setTeam(teamA);
+            em.persist(member1);
+
+            Member member2 = new Member();
+            member2.setUsername("회원2");
+            member2.setTeam(teamA);
+            em.persist(member2);
+
+            Member member3 = new Member();
+            member3.setUsername("회원3");
+            member3.setTeam(teamB);
+            em.persist(member3);
+
+            em.flush();
+            em.clear();
+
+            String query = "select m from Member m join fetch m.team";
+            List<Member> result = em.createQuery(query, Member.class)
+                    .getResultList();
+            for (Member member : result) {
+                System.out.println("username = " + member.getUsername()+","+
+                        "teamname = " + member.getTeam().getName());
+
+            }
             /** 경로 표현식
              * 상태 필드(static field): 경로 탐색의 끝, 탐색x (ex:m.username)
              * 단일 값 연관 경로: 묵시적 내부 조인(inner join) 발생, 탐색 O (ex: m.team)
@@ -34,26 +69,25 @@ public class JpaMain {
              * -FROM 절에서 명시적 조인을 통해 별칭을 얻으면 별칭을 통해 탐색 가능
              * 실무에서는 묵시적 조인을 쓰지 않고 명시적 조인을 써야 쿼리 튜닝하기도 쉽고 묵시적 조인을 쓰면 나중에 골치 아파진다.
              * */
-            Member member1 = new Member();
-            member1.setUsername("관리자1");
-            em.persist(member1);
-
-            Member member2 = new Member();
-            member2.setUsername("관리자2");
-            em.persist(member2);
-
-            em.flush();
-            em.clear();
+//            Member member1 = new Member();
+//            member1.setUsername("관리자1");
+//            em.persist(member1);
+//
+//            Member member2 = new Member();
+//            member2.setUsername("관리자2");
+//            em.persist(member2);
+//
+//            em.flush();
+//            em.clear();
 
 //            String query = "select m.username from Member m";
 //            String query = "select m.team from Member m";
-            String query = "select t.members from Team t";
-            List<String> result = em.createQuery(query, String.class)
-                    .getResultList();
-            for (String s : result) {
-                System.out.println("s = " + s);
-            }
-
+//            String query = "select t.members from Team t";
+//            List<String> result = em.createQuery(query, String.class)
+//                    .getResultList();
+//            for (String s : result) {
+//                System.out.println("s = " + s);
+//            }
             /**JPQL 함수
              * CONCAT,SUBSTRING,TRIM,LOWER,UPPER,LENGTH,LOCATE,ABS,SQRT,MOD,SIZE,INDEX(JPA 용도)
              * */

@@ -12,18 +12,12 @@ public class JpaMain {
         tx.begin();
 
         try {
-//            Member member = new Member();
-//            member.setUsername("member1");
-//            member.setAge(10);
-//            em.persist(member);
-
-            /** JPQL 타입 표현과 기타식 */
             Team team = new Team();
             team.setName("teamA");
             em.persist(team);
 
             Member member = new Member();
-            member.setUsername("member1");
+            member.setUsername("관리자");
             member.setAge(10);
             member.setType(MemberType.ADMIN);
 
@@ -34,17 +28,54 @@ public class JpaMain {
             em.flush();
             em.clear();
 
-            String query = "select m.username,'HELLO', true from Member m " +
-                    "where m.type = :userType";
-            List<Object[]> result = em.createQuery(query)
-                    .setParameter("userType", MemberType.ADMIN)
+            /** 조건식(CASE 등등)
+             * COALESCE(): 하나씩 조회해서 null이 아니면 반환
+             * NULLIF(): 두 값이 같으면 null 반환, 다르면 첫번째 값 반환
+             * */
+//            String query = "select " +
+//                    "case when m.age <= 10 then '학생요금' " +
+//                    "     when m.age >= 60 then '경로요금' " +
+//                    "     else '일반요금' " +
+//                    "end " +
+//                    "from Member m";
+//            String query = "select coalesce(m.username, '이름 없는 회원') as username " +
+//                    "from Member m ";
+            String query = "select nullif(m.username, '관리자') as username " +
+                    "from Member m ";
+            List<String> result = em.createQuery(query, String.class)
                     .getResultList();
-
-            for (Object[] objects : result) {
-                System.out.println("objects = " + objects[0]);
-                System.out.println("objects = " + objects[1]);
-                System.out.println("objects = " + objects[2]);
+            for (String s : result) {
+                System.out.println("s = " + s);
             }
+
+            /** JPQL 타입 표현과 기타식 */
+//            Team team = new Team();
+//            team.setName("teamA");
+//            em.persist(team);
+//
+//            Member member = new Member();
+//            member.setUsername("member1");
+//            member.setAge(10);
+//            member.setType(MemberType.ADMIN);
+//
+//            member.setTeam(team);
+//
+//            em.persist(member);
+//
+//            em.flush();
+//            em.clear();
+//
+//            String query = "select m.username,'HELLO', true from Member m " +
+//                    "where m.type = :userType";
+//            List<Object[]> result = em.createQuery(query)
+//                    .setParameter("userType", MemberType.ADMIN)
+//                    .getResultList();
+//
+//            for (Object[] objects : result) {
+//                System.out.println("objects = " + objects[0]);
+//                System.out.println("objects = " + objects[1]);
+//                System.out.println("objects = " + objects[2]);
+//            }
 
             /** 조인 */
 //            Team team = new Team();

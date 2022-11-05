@@ -27,6 +27,23 @@ public class JpaMain {
 
             em.flush();
             em.clear();
+            /**JPQL 함수
+             * CONCAT,SUBSTRING,TRIM,LOWER,UPPER,LENGTH,LOCATE,ABS,SQRT,MOD,SIZE,INDEX(JPA 용도)
+             * */
+
+            String query = "select concat('a', 'b') from Member ";
+            String query1 = "select substring(m.username, 2, 3) from Member m";
+            String query2 = "select locate('de','abcdefg') from Member m";
+            List<Integer> result1 = em.createQuery(query2, Integer.class)
+                    .getResultList();
+            String query3 = "select size(t.members) from Team t";
+            String query4 = "select index(t.members) from Team t"; //index는 잘 안쓰는게 좋다
+            String query5 = "select t from Team t";
+            List<String> result = em.createQuery(query, String.class)
+                    .getResultList();
+            for (String s : result) {
+                System.out.println("s = " + s);
+            }
 
             /** 조건식(CASE 등등)
              * COALESCE(): 하나씩 조회해서 null이 아니면 반환
@@ -40,13 +57,13 @@ public class JpaMain {
 //                    "from Member m";
 //            String query = "select coalesce(m.username, '이름 없는 회원') as username " +
 //                    "from Member m ";
-            String query = "select nullif(m.username, '관리자') as username " +
-                    "from Member m ";
-            List<String> result = em.createQuery(query, String.class)
-                    .getResultList();
-            for (String s : result) {
-                System.out.println("s = " + s);
-            }
+//            String query = "select nullif(m.username, '관리자') as username " +
+//                    "from Member m ";
+//            List<String> result = em.createQuery(query, String.class)
+//                    .getResultList();
+//            for (String s : result) {
+//                System.out.println("s = " + s);
+//            }
 
             /** JPQL 타입 표현과 기타식 */
 //            Team team = new Team();

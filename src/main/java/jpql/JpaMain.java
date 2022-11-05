@@ -12,38 +12,65 @@ public class JpaMain {
         tx.begin();
 
         try {
-            Team team = new Team();
-            team.setName("teamA");
-            em.persist(team);
+//            Team team = new Team();
+//            team.setName("teamA");
+//            em.persist(team);
+//
+//            Member member = new Member();
+//            member.setUsername("관리자");
+//            member.setAge(10);
+//            member.setType(MemberType.ADMIN);
+//
+//            member.setTeam(team);
+//
+//            em.persist(member);
+//
+//            em.flush();
+//            em.clear();
+            /** 경로 표현식
+             * 상태 필드(static field): 경로 탐색의 끝, 탐색x (ex:m.username)
+             * 단일 값 연관 경로: 묵시적 내부 조인(inner join) 발생, 탐색 O (ex: m.team)
+             * 컬렉션 값 연관 경로: 묵시적 내부 조인 발생 탐색 X
+             * -FROM 절에서 명시적 조인을 통해 별칭을 얻으면 별칭을 통해 탐색 가능
+             * 실무에서는 묵시적 조인을 쓰지 않고 명시적 조인을 써야 쿼리 튜닝하기도 쉽고 묵시적 조인을 쓰면 나중에 골치 아파진다.
+             * */
+            Member member1 = new Member();
+            member1.setUsername("관리자1");
+            em.persist(member1);
 
-            Member member = new Member();
-            member.setUsername("관리자");
-            member.setAge(10);
-            member.setType(MemberType.ADMIN);
-
-            member.setTeam(team);
-
-            em.persist(member);
+            Member member2 = new Member();
+            member2.setUsername("관리자2");
+            em.persist(member2);
 
             em.flush();
             em.clear();
-            /**JPQL 함수
-             * CONCAT,SUBSTRING,TRIM,LOWER,UPPER,LENGTH,LOCATE,ABS,SQRT,MOD,SIZE,INDEX(JPA 용도)
-             * */
 
-            String query = "select concat('a', 'b') from Member ";
-            String query1 = "select substring(m.username, 2, 3) from Member m";
-            String query2 = "select locate('de','abcdefg') from Member m";
-            List<Integer> result1 = em.createQuery(query2, Integer.class)
-                    .getResultList();
-            String query3 = "select size(t.members) from Team t";
-            String query4 = "select index(t.members) from Team t"; //index는 잘 안쓰는게 좋다
-            String query5 = "select t from Team t";
+//            String query = "select m.username from Member m";
+//            String query = "select m.team from Member m";
+            String query = "select t.members from Team t";
             List<String> result = em.createQuery(query, String.class)
                     .getResultList();
             for (String s : result) {
                 System.out.println("s = " + s);
             }
+
+            /**JPQL 함수
+             * CONCAT,SUBSTRING,TRIM,LOWER,UPPER,LENGTH,LOCATE,ABS,SQRT,MOD,SIZE,INDEX(JPA 용도)
+             * */
+
+//            String query = "select concat('a', 'b') from Member ";
+//            String query1 = "select substring(m.username, 2, 3) from Member m";
+//            String query2 = "select locate('de','abcdefg') from Member m";
+//            List<Integer> result1 = em.createQuery(query2, Integer.class)
+//                    .getResultList();
+//            String query3 = "select size(t.members) from Team t";
+//            String query4 = "select index(t.members) from Team t"; //index는 잘 안쓰는게 좋다
+//            String query5 = "select t from Team t";
+//            List<String> result = em.createQuery(query, String.class)
+//                    .getResultList();
+//            for (String s : result) {
+//                System.out.println("s = " + s);
+//            }
 
             /** 조건식(CASE 등등)
              * COALESCE(): 하나씩 조회해서 null이 아니면 반환
